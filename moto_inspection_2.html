@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Used Motorcycle Inspection — Dealer Acceptance Form</title>
+<style>
+  :root {
+    --ink: #111;
+    --ink-2: #555;
+    --ink-3: #999;
+    --line: #e2e2e2;
+    --surface: #f7f7f6;
+    --surface-2: #fff;
+    --accent: #d0400a;
+    --green: #1a8051;
+    --green-bg: #edf7f2;
+    --radius: 10px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+    font-size: 15px;
+    color: var(--ink);
+    background: var(--surface);
+    min-height: 100vh;
+  }
+
+  .topbar {
+    background: #111;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px;
+    height: 52px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .topbar-brand { font-size: 13px; font-weight: 600; letter-spacing: .03em; }
+  .topbar-progress { display: flex; align-items: center; gap: 10px; }
+  .topbar-bar { width: 120px; height: 3px; background: #333; border-radius: 2px; }
+  .topbar-fill { height: 100%; background: var(--accent); border-radius: 2px; transition: width .3s; }
+  .topbar-pct { font-size: 12px; color: #aaa; min-width: 32px; text-align: right; }
+
+  .page { max-width: 720px; margin: 0 auto; padding: 32px 20px 80px; }
+
+  .hero { margin-bottom: 32px; }
+  .hero-eyebrow { font-size: 11px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); margin-bottom: 6px; }
+  .hero h1 { font-size: 26px; font-weight: 700; line-height: 1.2; letter-spacing: -.02em; }
+  .hero-sub { font-size: 14px; color: var(--ink-2); margin-top: 6px; line-height: 1.5; }
+
+  .meta-card {
+    background: var(--surface-2);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 28px;
+  }
+  .meta-card h2 { font-size: 13px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 14px; }
+  .meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .meta-field label { display: block; font-size: 12px; color: var(--ink-2); margin-bottom: 4px; }
+  .meta-field input {
+    width: 100%;
+    height: 38px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 0 10px;
+    font-size: 14px;
+    color: var(--ink);
+    background: var(--surface);
+    outline: none;
+    transition: border-color .15s;
+  }
+  .meta-field input:focus { border-color: var(--accent); background: #fff; }
+  .meta-field.full { grid-column: 1 / -1; }
+
+  .section {
+    background: var(--surface-2);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    margin-bottom: 12px;
+    overflow: hidden;
+  }
+  .section-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 13px 18px;
+    cursor: pointer;
+    user-select: none;
+    border-bottom: 1px solid transparent;
+    transition: background .12s;
+  }
+  .section-head:hover { background: var(--surface); }
+  .section.open .section-head { border-bottom-color: var(--line); }
+  .section-icon { width: 28px; height: 28px; border-radius: 7px; background: var(--surface); display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+  .section-name { flex: 1; font-weight: 600; font-size: 14px; }
+  .section-badge {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 9px;
+    border-radius: 20px;
+    border: 1px solid var(--line);
+    color: var(--ink-3);
+    background: var(--surface);
+    white-space: nowrap;
+  }
+  .section-badge.done { background: var(--green-bg); color: var(--green); border-color: #b6e2ce; }
+  .section-chevron { font-size: 18px; color: var(--ink-3); transition: transform .2s; flex-shrink: 0; line-height: 1; }
+  .section.open .section-chevron { transform: rotate(180deg); }
+  .section-items { display: none; }
+  .section.open .section-items { display: block; }
+
+  .check-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 11px 18px;
+    border-bottom: 1px solid var(--line);
+    cursor: pointer;
+    transition: background .1s;
+  }
+  .check-item:last-child { border-bottom: none; }
+  .check-item:hover { background: var(--surface); }
+  .check-item input[type=checkbox] {
+    width: 17px; height: 17px;
+    margin-top: 1px; flex-shrink: 0;
+    accent-color: var(--accent); cursor: pointer;
+  }
+  .check-item-body { flex: 1; }
+  .check-item-label { font-size: 14px; line-height: 1.4; }
+  .check-item-hint { font-size: 12px; color: var(--ink-3); margin-top: 2px; line-height: 1.4; }
+  .check-item.is-done .check-item-label { color: var(--ink-3); text-decoration: line-through; }
+
+  /* photo section — text list only */
+  .photo-section {
+    background: var(--surface-2);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    margin-bottom: 12px;
+    overflow: hidden;
+  }
+  .photo-section-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 13px 18px;
+    border-bottom: 1px solid var(--line);
+    background: var(--surface);
+  }
+  .photo-section-title { flex: 1; font-weight: 600; font-size: 14px; }
+  .photo-section-sub { font-size: 12px; color: var(--ink-3); margin-top: 1px; }
+
+  .photo-list { padding: 8px 0; }
+  .photo-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 9px 18px;
+    border-bottom: 1px solid var(--line);
+    cursor: pointer;
+    transition: background .1s;
+  }
+  .photo-row:last-child { border-bottom: none; }
+  .photo-row:hover { background: var(--surface); }
+  .photo-row input[type=checkbox] {
+    width: 17px; height: 17px;
+    flex-shrink: 0;
+    accent-color: var(--accent); cursor: pointer;
+  }
+  .photo-row-body { flex: 1; }
+  .photo-row-label { font-size: 14px; font-weight: 500; line-height: 1.4; }
+  .photo-row-hint { font-size: 12px; color: var(--ink-3); margin-top: 2px; }
+  .photo-row.is-done .photo-row-label { color: var(--ink-3); text-decoration: line-through; }
+
+  .comments-section {
+    background: var(--surface-2);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    margin-bottom: 12px;
+    padding: 18px;
+  }
+  .comments-label { font-size: 13px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 10px; }
+  .comments-section textarea {
+    width: 100%;
+    min-height: 80px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 10px;
+    font-size: 14px;
+    color: var(--ink);
+    background: var(--surface);
+    resize: vertical;
+    outline: none;
+    font-family: inherit;
+    line-height: 1.5;
+  }
+  .comments-section textarea:focus { border-color: var(--accent); background: #fff; }
+
+  .submit-row { display: flex; gap: 10px; margin-top: 24px; }
+  .btn-submit {
+    flex: 1; height: 46px;
+    background: var(--accent); color: #fff;
+    border: none; border-radius: var(--radius);
+    font-size: 15px; font-weight: 600; cursor: pointer;
+    transition: opacity .15s, transform .1s;
+  }
+  .btn-submit:hover { opacity: .92; }
+  .btn-submit:active { transform: scale(.99); }
+  .btn-print {
+    height: 46px; padding: 0 20px;
+    background: var(--surface-2); color: var(--ink);
+    border: 1px solid var(--line); border-radius: var(--radius);
+    font-size: 14px; cursor: pointer; transition: background .12s; white-space: nowrap;
+  }
+  .btn-print:hover { background: var(--surface); }
+
+  .success-banner {
+    display: none;
+    background: var(--green-bg);
+    border: 1px solid #b6e2ce;
+    border-radius: var(--radius);
+    padding: 24px; text-align: center; margin-top: 20px;
+  }
+  .success-banner h3 { font-size: 17px; font-weight: 700; color: var(--green); margin-bottom: 4px; }
+  .success-banner p { font-size: 14px; color: #2d6e51; }
+
+  @media (max-width: 480px) {
+    .meta-grid { grid-template-columns: 1fr; }
+    .hero h1 { font-size: 21px; }
+  }
+
+  @media print {
+    .topbar, .btn-submit, .btn-print { display: none; }
+    body { background: #fff; }
+    .section, .photo-section, .comments-section, .meta-card { border: 1px solid #ccc; break-inside: avoid; }
+    .section-items, .photo-list { display: block !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <span class="topbar-brand">Used Motorcycle — Acceptance Form</span>
+  <div class="topbar-progress">
+    <div class="topbar-bar"><div class="topbar-fill" id="top-fill" style="width:0%"></div></div>
+    <span class="topbar-pct" id="top-pct">0%</span>
+  </div>
+</div>
+
+<div class="page">
+
+  <div class="hero">
+    <div class="hero-eyebrow">Dealership · Pre-owned Assessment</div>
+    <h1>Used Motorcycle<br>Acceptance Checklist</h1>
+    <p class="hero-sub">Complete all sections and confirm required photos. Submit when done — the manager will receive the form.</p>
+  </div>
+
+  <div class="meta-card">
+    <h2>Unit Information</h2>
+    <div class="meta-grid">
+      <div class="meta-field"><label>Make &amp; Model</label><input type="text" placeholder="Honda Click 125i" id="f-model"></div>
+      <div class="meta-field"><label>Year of Manufacture</label><input type="text" placeholder="2022" id="f-year"></div>
+      <div class="meta-field"><label>Motorcycle ID / Conduction Sticker No.</label><input type="text" placeholder="e.g. NCR-2024-00123" id="f-motoid"></div>
+      <div class="meta-field"><label>Odometer Reading (km)</label><input type="text" placeholder="12,500" id="f-odo"></div>
+      <div class="meta-field"><label>Engine Number</label><input type="text" placeholder="KESF-1234567" id="f-engine"></div>
+      <div class="meta-field"><label>Frame / Chassis Number</label><input type="text" placeholder="MRHKF1130NK..." id="f-frame"></div>
+      <div class="meta-field full"><label>Receiving Staff</label><input type="text" placeholder="Full name" id="f-master"></div>
+    </div>
+  </div>
+
+  <div id="sections-wrap"></div>
+
+  <!-- photo checklist -->
+  <div class="photo-section">
+    <div class="photo-section-head">
+      <div class="section-icon">📷</div>
+      <div style="flex:1">
+        <div class="photo-section-title">Required Photos</div>
+        <div class="photo-section-sub">Tick each shot after capturing it</div>
+      </div>
+      <span class="section-badge" id="photo-badge">0 / 8</span>
+    </div>
+    <div class="photo-list" id="photo-list"></div>
+  </div>
+
+  <div class="comments-section">
+    <div class="comments-label">Defects &amp; Remarks</div>
+    <textarea id="comments" placeholder="Describe any damage, non-standard parts, or concerns found during inspection..."></textarea>
+  </div>
+
+  <div class="submit-row">
+    <button class="btn-submit" onclick="submitForm()">Submit Acceptance Form</button>
+    <button class="btn-print" onclick="window.print()">🖨 Print</button>
+  </div>
+
+  <div class="success-banner" id="success">
+    <div style="font-size:36px;margin-bottom:8px;">✅</div>
+    <h3>Form submitted</h3>
+    <p>The manager will receive this form within a few minutes.</p>
+  </div>
+
+</div>
+
+<script>
+const SECTIONS = [
+  { id:'docs', icon:'📋', title:'Documents', items:[
+    { t:'OR/CR (Official Receipt &amp; Certificate of Registration) — details match unit', h:'Check for any encumbrance or hold order via LTO portal' },
+    { t:'LTO registration is current and not expired', h:null },
+    { t:'Sales invoice or Deed of Sale available', h:'Verify seller is registered owner on CR' },
+    { t:'Keys: primary and spare', h:null },
+    { t:'Owner\'s manual and service book (if available)', h:'Service stamps should be consistent with odometer reading' },
+  ]},
+  { id:'id', icon:'🔎', title:'Unit Identification', items:[
+    { t:'Frame / chassis number matches CR — no signs of tampering', h:'Check for filing, re-stamping, or rewelding around the number' },
+    { t:'Engine number matches CR', h:null },
+    { t:'Motorcycle ID / conduction sticker is legible and intact', h:null },
+    { t:'Odometer reading is consistent with overall wear', h:'Grips, footpegs, seat, and controls vs. declared mileage' },
+    { t:'No LTO hold orders, encumbrances, or reported theft', h:'Verify via LTO or PNP HPG database' },
+  ]},
+  { id:'engine', icon:'⚙️', title:'Engine &amp; Drivetrain', items:[
+    { t:'Cold start — no unusual sounds', h:null },
+    { t:'No smoke from exhaust (white, blue, or black)', h:null },
+    { t:'No oil or coolant leaks after 5 min warm-up', h:'Inspect underneath the unit' },
+    { t:'Oil level is within normal range', h:null },
+    { t:'All gears engage cleanly', h:'For scooters: CVT belt and rollers — no slip or shudder' },
+    { t:'Drive chain / belt — correct tension, sprockets in good condition', h:null },
+  ]},
+  { id:'chassis', icon:'🛞', title:'Chassis &amp; Brakes', items:[
+    { t:'Front fork — no oil seeping from seals, no scoring on tubes', h:null },
+    { t:'Steering head — no play, no binding, self-centres correctly', h:null },
+    { t:'Brake discs — above minimum thickness, no deep grooves', h:'Min. thickness is stamped on the disc' },
+    { t:'Brake pads — more than 2 mm remaining', h:null },
+    { t:'Tyres — tread above TWI indicator, no sidewall cuts', h:null },
+    { t:'CBS / ABS warning light extinguishes after start (if equipped)', h:null },
+  ]},
+  { id:'electrics', icon:'⚡', title:'Electrics', items:[
+    { t:'Battery voltage above 12.5 V', h:null },
+    { t:'Headlight, turn signals, and brake light all function', h:null },
+    { t:'No warning lights remaining on after warm-up', h:null },
+    { t:'No signs of non-standard wiring or splice repairs', h:'Tape over bare wires, improvised connectors' },
+  ]},
+  { id:'body', icon:'🎨', title:'Body &amp; Paint', items:[
+    { t:'Fuel tank — no dents, rust, or paint bubbling', h:null },
+    { t:'Fairings / body panels — no cracks, gaps align correctly', h:null },
+    { t:'Frame — no cracks, no signs of welding repairs', h:'Pay close attention to headstock and swingarm pivot areas' },
+    { t:'No clear evidence of accident damage', h:'Asymmetric panels, mismatched paint, non-OEM parts' },
+  ]},
+];
+
+const PHOTOS = [
+  { label:'Right side — full profile',         hint:'Unit parallel to frame, ~3 m distance' },
+  { label:'Left side — full profile',           hint:'Exhaust system must be visible' },
+  { label:'Front — head-on',                    hint:'Headlight, handlebars, front fork centred' },
+  { label:'Rear — straight on',                 hint:'Tail light, plate, rear tyre, exhaust tip' },
+  { label:'Instrument cluster + ID / engine no.',hint:'Both numbers readable in a single or consecutive shots' },
+  { label:'Engine — close-up',                  hint:'Remove cover if obscured; capture leaks, rust, chips' },
+  { label:'Damage detail',                      hint:'Place a coin (₱5, ø27 mm) beside damage for scale; use side lighting' },
+  { label:'Tyres &amp; wheels — both sides',   hint:'Sidewall + tread of each wheel' },
+];
+
+let photoDone = new Set();
+
+function buildSections() {
+  const wrap = document.getElementById('sections-wrap');
+  SECTIONS.forEach(sec => {
+    const div = document.createElement('div');
+    div.className = 'section open';
+    div.id = 'sec-' + sec.id;
+
+    const head = document.createElement('div');
+    head.className = 'section-head';
+    head.innerHTML = `
+      <div class="section-icon">${sec.icon}</div>
+      <span class="section-name">${sec.title}</span>
+      <span class="section-badge" id="badge-${sec.id}">0 / ${sec.items.length}</span>
+      <span class="section-chevron">⌄</span>
+    `;
+    head.onclick = () => toggleSection(sec.id);
+
+    const items = document.createElement('div');
+    items.className = 'section-items';
+    items.id = 'items-' + sec.id;
+
+    sec.items.forEach((item, i) => {
+      const id = `${sec.id}-${i}`;
+      const row = document.createElement('label');
+      row.className = 'check-item';
+      row.htmlFor = id;
+      row.innerHTML = `
+        <input type="checkbox" id="${id}">
+        <div class="check-item-body">
+          <div class="check-item-label">${item.t}</div>
+          ${item.h ? `<div class="check-item-hint">${item.h}</div>` : ''}
+        </div>
+      `;
+      row.querySelector('input').addEventListener('change', function() {
+        row.classList.toggle('is-done', this.checked);
+        updateBadge(sec.id);
+        updateProgress();
+      });
+      items.appendChild(row);
+    });
+
+    div.appendChild(head);
+    div.appendChild(items);
+    wrap.appendChild(div);
+  });
+}
+
+function toggleSection(id) {
+  document.getElementById('sec-' + id).classList.toggle('open');
+}
+
+function updateBadge(secId) {
+  const sec = SECTIONS.find(s => s.id === secId);
+  const done = document.querySelectorAll(`#items-${secId} input:checked`).length;
+  const badge = document.getElementById('badge-' + secId);
+  badge.textContent = `${done} / ${sec.items.length}`;
+  badge.className = 'section-badge' + (done === sec.items.length ? ' done' : '');
+}
+
+function updateProgress() {
+  const total = document.querySelectorAll('#sections-wrap input[type=checkbox]').length + PHOTOS.length;
+  const done  = document.querySelectorAll('#sections-wrap input[type=checkbox]:checked').length + photoDone.size;
+  const pct = Math.round(done / total * 100);
+  document.getElementById('top-fill').style.width = pct + '%';
+  document.getElementById('top-pct').textContent = pct + '%';
+}
+
+function buildPhotos() {
+  const list = document.getElementById('photo-list');
+  PHOTOS.forEach((p, idx) => {
+    const row = document.createElement('label');
+    row.className = 'photo-row';
+    row.htmlFor = 'photo-' + idx;
+    row.innerHTML = `
+      <input type="checkbox" id="photo-${idx}">
+      <div class="photo-row-body">
+        <div class="photo-row-label">${p.label}</div>
+        ${p.hint ? `<div class="photo-row-hint">${p.hint}</div>` : ''}
+      </div>
+    `;
+    row.querySelector('input').addEventListener('change', function() {
+      row.classList.toggle('is-done', this.checked);
+      this.checked ? photoDone.add(idx) : photoDone.delete(idx);
+      document.getElementById('photo-badge').textContent = `${photoDone.size} / 8`;
+      document.getElementById('photo-badge').className = 'section-badge' + (photoDone.size === 8 ? ' done' : '');
+      updateProgress();
+    });
+    list.appendChild(row);
+  });
+}
+
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbwOyhWyg76-g9Y8jOt36_rlCnA95y0xE5QWXLcMyh90AK_dZodzhlAeuU_ot6JgKTld/exec';
+
+function collectData() {
+  // Meta fields
+  const data = {
+    'Timestamp':      new Date().toLocaleString('en-PH', { timeZone: 'Asia/Manila' }),
+    'Make & Model':   document.getElementById('f-model').value.trim(),
+    'Year':           document.getElementById('f-year').value.trim(),
+    'Motorcycle ID':  document.getElementById('f-motoid').value.trim(),
+    'Odometer (km)':  document.getElementById('f-odo').value.trim(),
+    'Engine No.':     document.getElementById('f-engine').value.trim(),
+    'Frame No.':      document.getElementById('f-frame').value.trim(),
+    'Received by':    document.getElementById('f-master').value.trim(),
+  };
+
+  // Checklist sections
+  SECTIONS.forEach(sec => {
+    sec.items.forEach((item, i) => {
+      const cb = document.getElementById(`${sec.id}-${i}`);
+      const label = item.t.replace(/&amp;/g, '&').replace(/<[^>]+>/g, '');
+      data[`[${sec.title}] ${label}`] = cb && cb.checked ? 'YES' : 'NO';
+    });
+  });
+
+  // Photos
+  PHOTOS.forEach((p, i) => {
+    const label = p.label.replace(/&amp;/g, '&');
+    data[`[Photo] ${label}`] = photoDone.has(i) ? 'YES' : 'NO';
+  });
+
+  // Photos count summary
+  data['Photos confirmed'] = `${photoDone.size} / ${PHOTOS.length}`;
+
+  // Comments
+  data['Comments'] = document.getElementById('comments').value.trim();
+
+  return data;
+}
+
+async function submitForm() {
+  const required = ['f-model','f-year','f-motoid','f-master'];
+  const missing = required.filter(id => !document.getElementById(id).value.trim());
+  if (missing.length) {
+    const el = document.getElementById(missing[0]);
+    el.focus();
+    el.style.borderColor = '#d0400a';
+    setTimeout(() => el.style.borderColor = '', 2000);
+    return;
+  }
+
+  const btn = document.querySelector('.btn-submit');
+  btn.disabled = true;
+  btn.textContent = 'Sending…';
+
+  const data = collectData();
+
+  try {
+    const res = await fetch(SHEETS_URL, {
+      method: 'POST',
+      mode: 'cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    const json = await res.json();
+    if (json.result === 'ok') {
+      btn.textContent = 'Submitted ✓';
+      btn.style.background = '#1a8051';
+      document.getElementById('success').style.display = 'block';
+      document.getElementById('success').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    } else {
+      throw new Error(json.message || 'Unknown error');
+    }
+  } catch (err) {
+    btn.disabled = false;
+    btn.textContent = 'Submit Acceptance Form';
+    alert('Error: ' + err.message + '\n\nPlease check your internet connection and try again.');
+  }
+}
+
+buildSections();
+buildPhotos();
+updateProgress();
+</script>
+</body>
+</html>
